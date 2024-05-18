@@ -39,7 +39,7 @@ $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
                 <ul class="navbar-nav">
                   <li class="item"><a class="link" href="index.html">HOME</a></li>
                   <li class="item"><a class="link" href="categories/index.php">CATEGORIES</a></li>
-                  <li class="item"><a class="link" href="freelancer.html">FREELANCER</a></li>
+                  <li class="item"><a class="link" href="freelancer.php">FREELANCER</a></li>
                   <li class="item"><a class="link" href="about.html">ABOUT</a></li>
                   <li class="item"><a class="link" href="contact.php">CONTACT</a></li>
                   <li class="item current"><a class="link" href="profil.php">PROFIL</a></li>
@@ -91,7 +91,7 @@ $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
                       |
                       <a href="categories.php">CATEGORIES</a>
                       |
-                      <a href="freelancer.html">FREELANCER</a>
+                      <a href="freelancer.php">FREELANCER</a>
                       |
                       <a href="about.html">ABOUT</a>
                       |

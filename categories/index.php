@@ -38,7 +38,7 @@
             <ul class="navbar-nav">
               <li class="item"><a class="link" href="../index.html">HOME</a></li>
               <li class="item current"><a class="link" href="categories/index.php">CATEGORIES</a></li>
-              <li class="item"><a class="link" href="../freelancer.html">FREELANCER</a></li>
+              <li class="item"><a class="link" href="../freelancer.php">FREELANCER</a></li>
               <li class="item"><a class="link" href="../about.html">ABOUT</a></li>
               <li class="item"><a class="link" href="../contact.php">CONTACT</a></li>
               <li class="item"><a class="link" href="../signup.php">SIGN UP</a></li>
@@ -457,7 +457,7 @@
                     |
                     <a href="categories.php">CATEGORIES</a>
                     |
-                    <a href="freelancer.html">FREELANCER</a>
+                    <a href="freelancer.php">FREELANCER</a>
                     |
                     <a href="about.html">ABOUT</a>
                     |

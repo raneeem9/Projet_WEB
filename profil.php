@@ -1,8 +1,40 @@
+<?php
+$bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['Addinformations'])) {
+        $email = $_POST['email'];
+        $birthdate = $_POST['birthdate'];
+        $location = $_POST['location'];
+        $freelancer_Since = $_POST['freelancer_Since'];
+        $skills = $_POST['skills'];
+        $experience = $_POST['experience'];
 
+        $imagePath = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $imageDir = 'C:\xampp\htdocs\uploads/';
+            $imageName = uniqid() . '_' . $_FILES['image']['name'];
+            $imagePath = $imageDir . $imageName;
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $imagePath)) {
+                echo '<script>alert("Erreur lors de l\'upload du fichier.")</script>';
+                exit;
+            }
+        }
 
-
-
+        $insertinformations = $bdd->prepare("INSERT INTO Informations (email, birthdate, location, freelancer_Since, skills, experience, image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $success = $insertinformations->execute([$email, $birthdate, $location, $freelancer_Since, $skills, $experience, $imagePath]);
+        
+        // Check if insertion was successful
+        if ($success) {
+            // Redirect to display_information.php
+            header("Location: display_information.php?email=$email&location=$location&birthdate=$birthdate&freelancer_Since=$freelancer_Since&skills=$skills&experience=$experience&image=$imagePath");
+            exit(); // Stop script execution after redirection
+        } else {
+            echo '<script>alert("Erreur lors de l\'ajout des informations.")</script>';
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -18,19 +50,16 @@
         <link href="http://fonts.googleapis.com/css?family=Cookie" rel="stylesheet" type="text/css">
         <title>PROFIL</title>
     </head>
-    
-    
-        <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+     <nav class="navbar navbar-expand-lg navbar-light sticky-top">
           <div class="imageBox">
             <div class="imageInn">
                 <a href="index.html">
                     <img src="image/freelance.png" style="margin-left: 1rem; width: 100px; height: auto;" class="logo">
-                  </a>
-                  
-            </div>
-            
+                  </a>          
+            </div> 
+
           </div>
-              
+
               <button class="navbar-toggler bg-light" type="button" data-toggle="collapse" data-target="#nav" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon bg-light"></span>
               </button>
@@ -38,30 +67,28 @@
                 <ul class="navbar-nav">
                   <li class="item"><a class="link" href="index.html">HOME</a></li>
                   <li class="item"><a class="link" href="categories/index.php">CATEGORIES</a></li>
-                  <li class="item"><a class="link" href="freelancer.html">FREELANCER</a></li>
+                  <li class="item"><a class="link" href="freelancer.php">FREELANCER</a></li>
                   <li class="item"><a class="link" href="about.html">ABOUT</a></li>
                   <li class="item"><a class="link" href="contact.php">CONTACT</a></li>
                   <li class="item current"><a class="link" href="profil.php">PROFIL</a></li>
-                 
+
                 </ul>
+
               </div>
         </nav>
-      
-      
 
-        <div class="container mt-5">
+    <div class="container mt-5">
             <div class="row">
               <div class="col-md-4">
                 <!-- Section pour l'image de profil -->
                 <img src="image/per.png" class="img-fluid rounded-circle profile-image" alt="Profile Image">
               </div>
               <div class="col-md-8">
-            
 
-<div class="overlay" id="Addinformations">
-    <div class="login-popup" id="AddinformationsPopup">
-        <h2>Add informations</h2>
-        <button id="showFormButton">Add information</button>
+            <div class="overlay" id="Addinformations">
+            <div class="login-popup" id="AddinformationsPopup">
+              <h2>Add informations</h2>
+            <button id="showFormButton">Add information</button>
 
 <form id="informationForm" style="display: none;" method="POST" enctype="multipart/form-data">
     <!-- Vos champs de formulaire ici -->
@@ -125,59 +152,14 @@
     }
 </script>
 
-<?php
-$bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['Addinformations'])) {
-        $email = $_POST['email'];
-        $birthdate = $_POST['birthdate'];
-        $location = $_POST['location'];
-        $freelancer_Since = $_POST['freelancer_Since'];
-        $skills = $_POST['skills'];
-        $experience = $_POST['experience'];
-
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $imageDir = 'uploads/';
-            $imageName = uniqid() . '_' . $_FILES['image']['name'];
-            $imagePath = $imageDir . $imageName;
-            move_uploaded_file($_FILES['image']['tmp_name'], $imagePath);
-        } else {
-            $imagePath = null;
-        }
-
-        $insertinformations = $bdd->prepare("INSERT INTO Informations (email, birthdate, location, freelancer_Since, skills, experience, image) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $success = $insertinformations->execute([$email, $birthdate, $location, $freelancer_Since, $skills, $experience, $imagePath]);
-        
-        // Vérifier si l'insertion a réussi
-        if ($success) {
-            // Redirection vers la page de visualisation des informations avec les paramètres GET
-            header("Location: display_information.php?email=$email&location=$location&birthdate=$birthdate&freelancer_Since=$freelancer_Since&skills=$skills&experience=$experience&image=$imagePath");
-            exit(); // Arrêter l'exécution du script après la redirection
-        } else {
-            echo '<script>alert("Erreur lors de l\'ajout des informations.")</script>';
-        }
-    }
-}
-?>
-
-
-    </div>
+</div>
+</div>
 </div>
 
-
-
-
-
-          </div>
-
         <main>
-  
-            <div class="container main">
-              
+            <div class="container main"> 
             </div>
-              
-      </main>
+        </main>
   </body>
       <footer class="footer-distributed">
   
@@ -189,7 +171,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       |
                       <a href="categories.php">CATEGORIES</a>
                       |
-                      <a href="freelancer.html">FREELANCER</a>
+                      <a href="freelancer.php">FREELANCER</a>
                       |
                       <a href="about.html">ABOUT</a>
                       |

@@ -1,3 +1,41 @@
+<?php
+// Connexion à la base de données
+try {
+    $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim', 'root', '');
+    // Définir le mode d'erreur PDO à exception
+    $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    // En cas d'erreur de connexion, afficher l'erreur
+    die("Erreur : " . $e->getMessage());
+}
+
+// Vérifier si le formulaire a été soumis
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Récupérer les valeurs saisies dans le formulaire
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $subject = $_POST['subject'];
+    $message = $_POST['message'];
+
+    // Préparer la requête SQL pour insérer les données dans la table 'messages'
+    $sql = "INSERT INTO messages (name, email, phone, subject, message) VALUES (:name, :email, :phone, :subject, :message)";
+    $stmt = $bdd->prepare($sql);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':phone', $phone);
+    $stmt->bindParam(':subject', $subject);
+    $stmt->bindParam(':message', $message);
+
+    // Exécuter la requête
+    try {
+        $stmt->execute();
+        echo "Message envoyé avec succès.";
+    } catch (PDOException $e) {
+        echo "Erreur lors de l'envoi du message : " . $e->getMessage();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,9 +71,9 @@
             <ul class="navbar-nav">
               <li class="item"><a class="link" href="index.html">HOME</a></li>
               <li class="item"><a class="link" href="categories/index.php">CATEGORIES</a></li>
-              <li class="item current"><a class="link" href="freelancer.html">FREELANCER</a></li>
+              <li class="item current"><a class="link" href="freelancer.php">FREELANCER</a></li>
               <li class="item"><a class="link" href="about.html">ABOUT</a></li>
-              <li class="item"><a class="link" href="contact.html">CONTACT</a></li>
+              <li class="item"><a class="link" href="contact.php">CONTACT</a></li>
               <li class="item"><a class="link" href="signup.php">SIGN UP</a></li>
               <li class="item"><a class="link" href="login.php">LOGIN</a></li>
             </ul>
@@ -83,35 +121,36 @@
           <p>
             For any feedback
           </p>
-          <form class="form-light mt-20" role="form">
+          <form class="form-light mt-20" role="form" method="post">
+    <div class="form-group">
+        <label>Name</label>
+        <input type="text" class="form-control" name="name" placeholder="Your name" required>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
             <div class="form-group">
-              <label>Name</label>
-              <input type="text" class="form-control" placeholder="Your name">
+                <label>Email</label>
+                <input type="email" class="form-control" name="email" placeholder="Email address" required>
             </div>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Email</label>
-                  <input type="email" class="form-control" placeholder="Email address">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Phone</label>
-                  <input type="text" class="form-control" placeholder="Phone number">
-                </div>
-              </div>
-            </div>
+        </div>
+        <div class="col-md-6">
             <div class="form-group">
-              <label>Subject</label>
-              <input type="text" class="form-control" placeholder="Subject">
+                <label>Phone</label>
+                <input type="text" class="form-control" name="phone" placeholder="Phone number" required>
             </div>
-            <div class="form-group">
-              <label>Message</label>
-              <textarea class="form-control" id="message" placeholder="Write you message here..." style="height:100px;"></textarea>
-            </div>
-            <button type="submit" class="btn btn-two">Send message</button><p><br/></p>
-          </form>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Subject</label>
+        <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+    </div>
+    <div class="form-group">
+        <label>Message</label>
+        <textarea class="form-control" name="message" id="message" placeholder="Write your message here..." style="height:100px;" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-two">Send message</button>
+    <p><br/></p>
+</form>
         </div>
       </div>
     </div>
@@ -348,11 +387,11 @@
                     |
                     <a href="categories.php">CATEGORIES</a>
                     |
-                    <a href="freelancer.html">FREELANCER</a>
+                    <a href="freelancer.php">FREELANCER</a>
                     |
                     <a href="about.html">ABOUT</a>
                     |
-                    <a href="contact.html">CONTACT</a>
+                    <a href="contact.php">CONTACT</a>
                     |
                     <a href="signup.php">SIGN UP</a>
                     |

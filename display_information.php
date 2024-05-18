@@ -1,9 +1,57 @@
 <?php
 $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
 
+// Récupérer les informations actuelles de l'utilisateur depuis la base de données
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email']; // Récupérer l'email depuis le formulaire de mise à jour
+
+    if (isset($_POST['updateInformation'])) {
+        // Récupérez les nouvelles valeurs depuis le formulaire
+        $newEmail = $_POST['email'];
+        $newBirthdate = $_POST['birthdate'];
+        $newLocation = $_POST['location'];
+        $newFreelancerSince = $_POST['freelancer_Since'];
+        $newSkills = $_POST['skills'];
+        $newExperience = $_POST['experience'];
+
+        // Mettez à jour les informations dans la base de données en fonction de l'email
+        $updateInformation = $bdd->prepare("UPDATE informations SET email = :newEmail, birthdate = :newBirthdate, location = :newLocation, freelancer_Since = :newFreelancerSince, skills = :newSkills, experience = :newExperience WHERE email = :email");
+        $success = $updateInformation->execute([
+            'newEmail' => $newEmail,
+            'newBirthdate' => $newBirthdate,
+            'newLocation' => $newLocation,
+            'newFreelancerSince' => $newFreelancerSince,
+            'newSkills' => $newSkills,
+            'newExperience' => $newExperience,
+            'email' => $email
+        ]);
+
+        if ($success) {
+            // Afficher les informations mises à jour
+            echo '<script>alert("Informations mises à jour avec succès.")</script>';
+            // Redirigez l'utilisateur vers une page de confirmation ou vers une autre page de son choix
+            // header("Location: display_information.php");
+            // exit();
+        } else {
+            echo '<script>alert("Erreur lors de la mise à jour des informations.")</script>';
+        }
+    }
+}
+
+// Récupérer les informations actuelles de l'utilisateur depuis la base de données en fonction de l'email
+if (isset($_GET['email'])) {
+    $email = $_GET['email']; // Récupérer l'email depuis la requête GET
+    $currentInformation = $bdd->prepare("SELECT * FROM informations WHERE email = :email");
+    $currentInformation->execute(['email' => $email]);
+    $currentInfo = $currentInformation->fetch(PDO::FETCH_ASSOC);
+    
+    // Récupérer l'image
+    $imageQuery = $bdd->prepare("SELECT image FROM images WHERE email = :email ORDER BY id DESC LIMIT 1");
+    $imageQuery->execute(['email' => $email]);
+    $imageResult = $imageQuery->fetch(PDO::FETCH_ASSOC);
+    $imageData = $imageResult ? $imageResult['image'] : null;
+}
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -39,7 +87,7 @@ $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
                 <ul class="navbar-nav">
                   <li class="item"><a class="link" href="index.html">HOME</a></li>
                   <li class="item"><a class="link" href="categories/index.php">CATEGORIES</a></li>
-                  <li class="item"><a class="link" href="freelancer.html">FREELANCER</a></li>
+                  <li class="item"><a class="link" href="freelancer.php">FREELANCER</a></li>
                   <li class="item"><a class="link" href="about.html">ABOUT</a></li>
                   <li class="item"><a class="link" href="contact.php">CONTACT</a></li>
                   <li class="item current"><a class="link" href="profil.php">PROFIL</a></li>
@@ -54,19 +102,55 @@ $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
             <div class="row">
             <div class="col-md-4">
             <!-- Image de profil -->
-              <img src="<?php echo isset($_GET['image']) ? htmlspecialchars($_GET['image']) : ''; ?>" class="img-fluid rounded-circle profile-image" alt="Profile Image">
+            <div class="col-md-4">
+            <img src="<?php echo isset($currentInfo['image']) ? htmlspecialchars($currentInfo['image']) : ''; ?>" class="img-fluid rounded-circle profile-image" alt="Profile Image">
+</div>
+</div>
 
-        </div>
-        <div class="col-md-8">
-            <h2>Informations saisies :</h2>
-            <p><strong>Email:</strong> <?php echo isset($_GET['email']) ? $_GET['email'] : ''; ?></p>
-            <p><strong>Location:</strong> <?php echo isset($_GET['location']) ? $_GET['location'] : ''; ?></p>
-            <p><strong>Birthdate:</strong> <?php echo isset($_GET['birthdate']) ? $_GET['birthdate'] : ''; ?></p>
-            <p><strong>Freelancer Since:</strong> <?php echo isset($_GET['freelancer_Since']) ? $_GET['freelancer_Since'] : ''; ?></p>
-            <p><strong>Skills:</strong> <?php echo isset($_GET['skills']) ? $_GET['skills'] : ''; ?></p>
-            <p><strong>Experience:</strong> <?php echo isset($_GET['experience']) ? $_GET['experience'] : ''; ?></p>
-            <p><strong>Image:</strong> <?php echo isset($_GET['image']) ? $_GET['image'] : ''; ?></p>
-        </div>
+<div class="col-md-8">
+    <h2>Informations saisies :</h2>
+    <p><strong>Email:</strong> <?php echo isset($currentInfo['email']) ? $currentInfo['email'] : ''; ?></p>
+    <p><strong>Location:</strong> <?php echo isset($currentInfo['location']) ? $currentInfo['location'] : ''; ?></p>
+    <p><strong>Birthdate:</strong> <?php echo isset($currentInfo['birthdate']) ? $currentInfo['birthdate'] : ''; ?></p>
+    <p><strong>Freelancer Since:</strong> <?php echo isset($currentInfo['freelancer_Since']) ? $currentInfo['freelancer_Since'] : ''; ?></p>
+    <p><strong>Skills:</strong> <?php echo isset($currentInfo['skills']) ? $currentInfo['skills'] : ''; ?></p>
+    <p><strong>Experience:</strong> <?php echo isset($currentInfo['experience']) ? $currentInfo['experience'] : ''; ?></p>
+    <!-- Ajouter d'autres champs pour afficher les autres informations de l'utilisateur -->
+</div>
+
+
+<button id="showFormButton">Update information</button>
+
+<form id="informationForm" style="display: none;" method="POST" enctype="multipart/form-data">
+    <!-- Afficher les informations actuelles de l'utilisateur dans les champs du formulaire -->
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" value="<?php echo isset($currentInfo['email']) ? $currentInfo['email'] : ''; ?>" required><br><br>
+    <label for="birthdate">Birth date:</label>
+    <input type="date" id="birthdate" name="birthdate" value="<?php echo isset($currentInfo['birthdate']) ? $currentInfo['birthdate'] : ''; ?>" required><br><br>
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" value="<?php echo isset($currentInfo['location']) ? $currentInfo['location'] : ''; ?>" required><br><br>
+    <label for="freelancer_Since">Freelancer Since:</label>
+    <input type="text" id="freelancer_Since" name="freelancer_Since" value="<?php echo isset($currentInfo['freelancer_Since']) ? $currentInfo['freelancer_Since'] : ''; ?>" required><br><br>
+    <label for="skills">Skills:</label>
+    <input type="text" id="skills" name="skills" value="<?php echo isset($currentInfo['skills']) ? $currentInfo['skills'] : ''; ?>" required><br><br>
+    <label for="experience">Experience:</label>
+    <input type="text" id="experience" name="experience" value="<?php echo isset($currentInfo['experience']) ? $currentInfo['experience'] : ''; ?>" required><br><br>
+    <!-- Ajouter d'autres champs pour afficher les autres informations actuelles de l'utilisateur -->
+
+    <input type="submit" id="submitBtn" name="updateInformation" value="Update informations">
+    <a id="inputclose" href="#" onclick="closeLogin()">Close</a>
+</form>
+
+<script>
+    document.getElementById('showFormButton').addEventListener('click', function() {
+        document.getElementById('informationForm').style.display = 'block';
+    });
+
+    // Fonction pour fermer le popup
+    function closeLogin() {
+        document.getElementById('informationForm').style.display = 'none';
+    }
+</script>
 
         
     </div>
@@ -94,7 +178,7 @@ $bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
                       |
                       <a href="categories.php">CATEGORIES</a>
                       |
-                      <a href="freelancer.html">FREELANCER</a>
+                      <a href="freelancer.php">FREELANCER</a>
                       |
                       <a href="about.html">ABOUT</a>
                       |
