@@ -492,7 +492,7 @@ main {
 
 .blog-post_date span{
   display: block;
-  color: rgba(0, 0, 0, 0.5));
+  color: rgba(0, 0, 0, 0.5);
   font-size: 1.1rem;
   /* font-family: mo; */
   font-weight: 600;
@@ -592,4 +592,5 @@ main {
   }
 
 }
+
 

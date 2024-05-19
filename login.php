@@ -1,6 +1,6 @@
 <?php
-session_start(); // Démarrer la session
-$bdd = new PDO('mysql:host=127.0.0.1;dbname=ranim','root','');
+session_start(); // Start the session
+$bdd = new PDO('mysql:host=127.0.0.1;dbname=client', 'root', '');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
@@ -8,28 +8,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $email = $_POST['email'];
             $password = $_POST['password'];
 
-            // Requête pour vérifier les informations de connexion
+            // Query to check login information
             $query = $bdd->prepare("SELECT * FROM client WHERE email = ? AND password1 = ?");
-            $query->execute(array($email, $password)); // Utilisation de $password au lieu de $password1
+            $query->execute(array($email, $password));
             $user = $query->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
-                // Utilisateur trouvé, enregistrer les informations de connexion dans la session
-                $_SESSION['user_id'] = $user['id']; // Supposons que la colonne de l'ID de l'utilisateur soit 'id'
+                // User found, save login information in session
+                $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_type'] = $user['user_type'];
 
-                // Redirection basée sur le type d'utilisateur
+                // Redirect based on user type
                 if ($user['user_type'] == 'client') {
                     header('Location: find_talent.php');
+                    exit; // Stop script execution after redirection
                 } elseif ($user['user_type'] == 'freelancer') {
-                    header('Location: profil.php');
+                    // Check if the freelancer has already submitted information
+                    $query = $bdd->prepare("SELECT * FROM freelancer WHERE email = ?");
+                    $query->execute([$user['email']]);
+                    $freelancer = $query->fetch(PDO::FETCH_ASSOC);
+
+                    if ($freelancer) {
+                        header("Location: display_information.php");
+                        exit();
+                    } else {
+                        header("Location: profil.php");
+                        exit();
+                    }
                 } else {
                     echo "Unknown user type.";
                 }
-                exit; // Arrêter l'exécution du script après la redirection
             } else {
-                // Informer l'utilisateur que les informations de connexion sont incorrectes
+                // Inform the user that login information is incorrect
                 echo "Email or password incorrect.";
             }
         } else {
@@ -39,7 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Error: " . $e->getMessage();
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
